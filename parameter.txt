@@ -1,0 +1,7 @@
+dimension: 256 256
+sampling: 0.5 0.5
+numerical_aperture: 0.2
+wavelength: 0.85
+zStart: -512
+zEnd: 512
+zSampling: 1
