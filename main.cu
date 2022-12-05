@@ -10,6 +10,44 @@
 using namespace std;
 using namespace std::chrono;
 
+template <typename T>
+void simulateOnCpu(T beam, Parameters parameters) {
+    // plot beam at the focus
+    auto start = high_resolution_clock::now();
+    beams::cpu::plotBeamFromFourier<double>(beam.getbeamAtFocusTilde(),
+                                            parameters.numSamples.y,
+                                            parameters.numSamples.x,
+                                            "Beam At Focus");
+    auto end = high_resolution_clock::now();
+    cout << "(CPU) Plot Beam :                       " << (duration_cast<milliseconds >(end-start)).count() << "ms" << endl;
+
+    // declare fresnel propagator with simulation parameters.
+    propagator::cpu::Propagator propagator(parameters, beam.getbeamAtFocusTilde());
+
+    // perform propagation.
+    start = high_resolution_clock::now();
+    auto beamTilde = propagator.propagate(128);
+    end = high_resolution_clock::now();
+    cout << "(CPU) Propagation to single z plane :   " << (duration_cast<milliseconds >(end-start)).count() << "ms" << endl;
+
+    // plot beam at the propagated distance
+    beams::cpu::plotBeamFromFourier<std::complex<double>>(beamTilde,
+                                                          parameters.numSamples.y,
+                                                          parameters.numSamples.x,
+                                                          "Beam At 100um");
+
+
+    // compute z propagation profile
+    start = high_resolution_clock::now();
+    auto zProfile = propagator.propagationProfile(parameters.zStart, parameters.zEnd, parameters.zSampling);
+    end = high_resolution_clock::now();
+    cout << "(CPU) Propagation Profile:              " << (duration_cast<milliseconds >(end-start)).count() << "ms" << endl;
+    beams::cpu::plotBeamFromSpatial(zProfile,
+                                    ((parameters.zEnd-parameters.zStart)/parameters.zSampling),
+                                    parameters.numSamples.x, "z profile");
+
+}
+
 
 int main(int argc, char* argv[]) {
     // parse command line arguments
@@ -26,39 +64,8 @@ int main(int argc, char* argv[]) {
     auto end = high_resolution_clock::now();
     cout << "(CPU) Beam At Focus :                   " << (duration_cast<milliseconds >(end-start)).count() << "ms" << endl;
 
-    // plot beam at the focus
-    start = high_resolution_clock::now();
-    beams::cpu::plotBeamFromFourier<double>(beam.getbeamAtFocusTilde(),
-                                            parameters.numSamples.y,
-                                            parameters.numSamples.x,
-                                            "Beam At Focus");
-    end = high_resolution_clock::now();
-    cout << "(CPU) Plot Beam :                       " << (duration_cast<milliseconds >(end-start)).count() << "ms" << endl;
-
-    // declare fresnel propagator with simulation parameters.
-    propagator::cpu::Propagator propagator(parameters, beam.getbeamAtFocusTilde());
-
-    // perform propagation.
-    start = high_resolution_clock::now();
-    auto beamTilde = propagator.propagate(128);
-    end = high_resolution_clock::now();
-    cout << "(CPU) Propagation to single z plane :   " << (duration_cast<milliseconds >(end-start)).count() << "ms" << endl;
-
-    // plot beam at the propagated distance
-    beams::cpu::plotBeamFromFourier<std::complex<double>>(beamTilde,
-                                                            parameters.numSamples.y,
-                                                            parameters.numSamples.x,
-                                                            "Beam At 100um");
-
-
-    // compute z propagation profile
-    start = high_resolution_clock::now();
-    auto zProfile = propagator.propagationProfile(parameters.zStart, parameters.zEnd, parameters.zSampling);
-    end = high_resolution_clock::now();
-    cout << "(CPU) Propagation Profile:              " << (duration_cast<milliseconds >(end-start)).count() << "ms" << endl;
-    beams::cpu::plotBeamFromSpatial(zProfile,
-                                    ((parameters.zEnd-parameters.zStart)/parameters.zSampling),
-                                    parameters.numSamples.x, "z profile");
+    // perform the simulation on cpu
+    simulateOnCpu<beams::cpu::GaussianBeam>(beam, parameters);
 
     return 0;
 }
