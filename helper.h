@@ -6,6 +6,104 @@
 #define PROJECT_HELPER_H
 
 #include <thrust/host_vector.h>
+#include <fstream>
+#include <string>
+
+
+template <typename T>
+struct doublet {
+    T x = 0; T y = 0;
+};
+
+class Parameters {
+public:
+    doublet<unsigned short> dim;                        // dimension of sample along x and y
+    doublet<double> sampling;                            // sampling interval along x and Y
+    doublet<unsigned short> numSamples;                 // samples along x and y
+    double na;                                           // numerical aperture of focusing optics
+    double k;                                            // wavenubmer for simulation
+    double zStart;
+    double zEnd;
+    double zSampling;
+
+    // default constructor
+    Parameters() {
+        dim.x           = 0;
+        dim.y           = 0;
+        sampling.x      = 0;
+        sampling.y      = 0;
+        numSamples.x    = 0;
+        numSamples.y    = 0;
+        na              = 0;
+        k               = 0;
+        zStart          = 0;
+        zEnd            = 0;
+        zSampling       = 0;
+    }
+
+    // construct object from specified parameter file
+    Parameters(std::string filename) {
+        std::string discard;
+        std::ifstream infile;
+        infile.open(filename);
+        if (infile.is_open()) {
+            infile >> discard;
+            infile >> dim.x;
+            infile >> dim.y;
+
+            infile >> discard;
+            infile >> sampling.x;
+            infile >> sampling.y;
+
+            numSamples.x = (unsigned short) ((double)dim.x / sampling.x);
+            numSamples.y = (unsigned short) ((double)dim.y / sampling.y);
+
+            infile >> discard;
+            infile >> na;
+
+            infile >> discard;
+            infile >> k;                                                            // load wavelength
+            k = 2 * M_PI / k;                                                       // wavelength to wave-number
+
+            infile >> discard;
+            infile >> zStart;
+
+            infile >> discard;
+            infile >> zEnd;
+
+            infile >> discard;
+            infile >> zSampling;
+
+            infile.close();
+        }
+    };
+
+    // copy constructor
+    Parameters(const Parameters& params) {
+        dim              = params.dim;
+        sampling         = params.sampling;
+        numSamples       = params.numSamples;
+        na               = params.na;
+        k                = params.k;
+        zStart           = params.zStart;
+        zEnd             = params.zEnd;
+        zSampling        = params.zSampling;
+    }
+
+    // overload assignment operator
+    Parameters& operator=(const Parameters& params) {
+        dim                 = params.dim;
+        sampling            = params.sampling;
+        numSamples          = params.numSamples;
+        na                  = params.na;
+        k                   = params.k;
+        zStart              = params.zStart;
+        zEnd                = params.zEnd;
+        zSampling           = params.zSampling;
+
+        return *this;
+    }
+};
 
 thrust::host_vector<double> arange(const double start, const double end, const double dx) {
     /* returns array containing values [start, end) with dx increment

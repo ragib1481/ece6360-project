@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.22)
 project(project CUDA)
 
 set(CMAKE_CUDA_STANDARD 20)
@@ -9,7 +9,7 @@ find_package(OpenCV REQUIRED)
 
 include_directories(${OPENCV_INCLUDE_DIRS})
 
-add_executable(project main.cu Propagator.cuh helper.h Beam.cuh)
+add_executable(project main.cu helper.h)
 
 configure_file(parameter.txt parameter.txt COPYONLY)
 
