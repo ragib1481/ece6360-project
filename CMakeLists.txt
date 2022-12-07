@@ -6,8 +6,10 @@ set(CMAKE_CUDA_STANDARD 20)
 set(CMAKE_CUDA_FLAGS_RELEASE "-O3 --compiler-options='-ffp-contract=fast'")
 
 find_package(OpenCV REQUIRED)
+find_package(Boost REQUIRED)
 
 include_directories(${OPENCV_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(project main.cu helper.h myMath.h)
 
@@ -16,4 +18,4 @@ configure_file(parameter.txt parameter.txt COPYONLY)
 set_target_properties(project PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON)
 
-target_link_libraries(project fftw3 ${OpenCV_LIBS})
+target_link_libraries(project fftw3 ${OpenCV_LIBS} ${Boost_LIBRARIES})

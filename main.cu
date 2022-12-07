@@ -1,5 +1,6 @@
 #include <iostream>
 #include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
 #include <complex.h>
 #include <chrono>
 
@@ -20,9 +21,10 @@ int main(int argc, char* argv[]) {
     Parameters parameters("./" + filename);
 
     cout << "Bessel Function" << endl;
-    for (unsigned int n = 0; n <= 2; n++) {
-        for (float x = 0.0; x <= 10.0; x++) {
-            cout << redefined::spBesselN<float>(n, x) - std::sph_bessel<float>(n, x) << ", ";
+
+    for (int n = 0; n < 5; n++) {
+        for (float x = 0.01; x <= 10.0; x++) {
+            cout << n << " " << x << " " << redefined::spBesselN<float>(n, x) - std::sph_bessel<float>(n, x) << endl;
         }
         cout << endl;
     }

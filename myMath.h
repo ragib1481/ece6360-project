@@ -11,21 +11,30 @@
 namespace redefined {
     template <class T>
     __host__ __device__ inline T spBessel0(const T& x) {
-        if (x == static_cast<T>(0.0)) return static_cast<T>(1.0);
+        if (x < static_cast<T>(0.00000001)) return static_cast<T>(1.0);
         return sin(x) / x;
     }
 
     template <class T>
     __host__ __device__ inline T spBessel1(const T& x) {
-        if (x == static_cast<T>(0.0)) return static_cast<T>(0.0);
+        if (x < static_cast<T>(0.00000001)) return static_cast<T>(0.0);
         return (sin(x) - x * cos(x))/ (x * x);
     }
 
     template <class T>
     __host__ __device__ T spBesselN(const unsigned int n, const T& x) {
+
         if (n == 0) return spBessel0(x);
         if (n == 1) return spBessel1(x);
         if (x == static_cast<T>(0.0)) return static_cast<T>(0.0);
+
+        if ( x < static_cast<T>(n) * static_cast<T>(0.1)) {
+            T val = pow(x, static_cast<T>(n));
+            for (int i = 1; i <= (2 * n + 1); i += 2) {
+                val /= i;
+            }
+            return val;
+        }
 
         T zm_2 = spBessel0(x);
         T zm_1 = spBessel1(x);
@@ -40,8 +49,11 @@ namespace redefined {
         return zm;
     }
 
-    template <class T>
+    template <typename T>
     __host__ __device__ T spBesselDer1(const unsigned int n, const T& x) {
+        if (x == static_cast<T>(0)) return 0;
+        if (n == 0) return -spBessel1<T>(x);
+        return spBesselN<T>(n-1, x) - static_cast<T>(n + 1) * spBesselN(n, x) / x;
     }
 
     __host__ __device__ float spHankel(const int n, const float x) {
