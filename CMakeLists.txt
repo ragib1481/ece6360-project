@@ -3,13 +3,13 @@ project(project CUDA)
 
 set(CMAKE_CUDA_STANDARD 20)
 
-set(CMAKE_CUDA_FLAGS_RELEASE "-O3")
+set(CMAKE_CUDA_FLAGS_RELEASE "-O3 --compiler-options='-ffp-contract=fast'")
 
 find_package(OpenCV REQUIRED)
 
 include_directories(${OPENCV_INCLUDE_DIRS})
 
-add_executable(project main.cu helper.h)
+add_executable(project main.cu helper.h myMath.h)
 
 configure_file(parameter.txt parameter.txt COPYONLY)
 
