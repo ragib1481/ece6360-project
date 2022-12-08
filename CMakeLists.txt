@@ -3,7 +3,7 @@ project(project CUDA)
 
 set(CMAKE_CUDA_STANDARD 20)
 
-set(CMAKE_CUDA_FLAGS_RELEASE "-O3 --compiler-options='-ffp-contract=fast'")
+set(CMAKE_CUDA_FLAGS_RELEASE "-O3 -fmad=false --expt-relaxed-constexpr --compiler-options='-ffp-contract=fast'")
 
 find_package(OpenCV REQUIRED)
 find_package(Boost REQUIRED)
