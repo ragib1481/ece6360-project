@@ -209,4 +209,13 @@ void fftshift2d(thrust::host_vector<T>& data, const int width, const int height)
     }
 }
 
+__host__ __device__
+int factorial(int n) {
+    int val = 1;
+    for (int i = 2; i <= n; i++) {
+        val *= i;
+    }
+    return val;
+}
+
 #endif //PROJECT_HELPER_H

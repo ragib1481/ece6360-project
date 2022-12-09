@@ -17,44 +17,44 @@ namespace scatter {
 
     template <typename T>
     __host__ __device__
-    thrust::complex<T> Bl(T jl_ka, T jlp_ka, T jl_kna, T jlp_kna, T hl_ka, T hlp_ka,
-                          T n, int l) {
-        thrust::complex<T> val(0,0);
+    thrust::complex<T> Bl(int l, T k, thrust::complex<T> n, T a) {
+        thrust::complex<T> num;
+        thrust::complex<T> den;
+        thrust::complex<T> jl_kna = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
+        thrust::complex<T> jl_ka  = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0));
+        thrust::complex<T> jlp_ka  = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0));
+        thrust::complex<T> jlp_kna = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
+
+        num = jl_ka * jlp_kna * n - jl_kna * jlp_ka;
+        den = jl_kna * redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0)) -
+                redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0)) * jlp_kna * n;
+
+        return thrust::complex<T>(2*l+1,0) * pow(thrust::complex<T>(0,1), l) * num / den;
+
     }
 
     template <typename T>
     __host__ __device__
-    thrust::complex<T> Al(int l, T lambda, T n, T a) {
-        std::complex<T> val(0, 0);
-        return val;
+    thrust::complex<T> Al(int l, T k, thrust::complex<T> n, T a) {
+        thrust::complex<T> jl_kna = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
+        thrust::complex<T> jl_ka  = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0));
+        thrust::complex<T> jlp_ka  = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0));
+        thrust::complex<T> jlp_kna = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
+        thrust::complex<T> hl_ka  = redefined::spHankel1Complex<T>(l, thrust::complex<T>(k * a, 0));
+        thrust::complex<T> hlp_ka  = redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0));
+        return hlp_ka;
     }
 
     template <typename T>
     __host__ __device__
     thrust::complex<T> Es(const T r, const T theta, const T lambda,
-                          const T k, const T n, const T a, const int Nl) {
-        thrust::complex<T> val;
-        thrust::complex<T> hl_ka, hlp_ka;
-        T vm;
+                          const T k, const thrust::complex<T> n, const T a, const int Nl) {
 
-        // calculate jl_kna(x), jlp_kna(x), for kna
-        T* jl_kna   = new T[Nl+1];
-        T* jlp_kna  = new T[Nl+1];
-        T* yl_kna   = new T[Nl+1];
-        T* ylp_kna  = new T[Nl+1];
-        // redefined::sphBessjyv(Nl, k * n * a, vm, jl_kna, yl_kna, jlp_kna, ylp_kna);
-
-        // calculate jl(x), jl_prime(x), jyl(x), y_prime(x) for ka
-        T* jl_ka   = new T[Nl+1];
-        T* jlp_ka  = new T[Nl+1];
-        T* yl_ka   = new T[Nl+1];
-        T* ylp_ka  = new T[Nl+1];
-        // redefined::sphBessjyv(Nl, k * n * a, vm, jl_ka, yl_ka, jlp_ka, ylp_ka);
-
-        // calculate  hl(x) and hl_prime(x) for ka
+        thrust::complex<T> val(0,0);
         for (int l = 0; l <= Nl; l++) {
-            hl_ka   = thrust::complex<T>(jl_ka[l], yl_ka[l]);
-            hlp_ka  = thrust::complex<T>(jlp_ka[l], ylp_ka[l]);
+            val += Bl(l, k, n , a) *
+                   redefined::spHankel1Complex<T>(l, thrust::complex<T>(k*r, 0)) *
+                   thrust::complex<T>(redefined::legendre<T>(l, cos(theta)), 0);
         }
 
         return val;
@@ -63,9 +63,12 @@ namespace scatter {
     template <typename T>
     __host__ __device__
     thrust::complex<T> Ei(const T r, const T theta, const T lambda,
-                          const T k, const T n, const T a, const int Nl) {
-        thrust::complex<T> val;
-        for (int l = Nl; l >=  0; l--) {
+                          const T k, const thrust::complex<T> n, const T a, const int Nl) {
+        thrust::complex<T> val(0,0);
+        for (int l = 0; l <= Nl; l++) {
+            val += Al(l, k, n , a) *
+                    redefined::spBesselJComplex<T>(l, thrust::complex<T>(k*r, 0) * n) *
+                    thrust::complex<T>(redefined::legendre<T>(l, cos(theta)), 0);
         }
     }
 
