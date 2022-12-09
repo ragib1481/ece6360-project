@@ -1,0 +1,91 @@
+//
+// Created by ragib1481 on 12/7/22.
+//
+
+#ifndef PROJECT_MESH_CUH
+#define PROJECT_MESH_CUH
+
+#include <thrust/host_vector.h>
+#include "Vec3.cuh"
+#include "helper.h"
+
+
+namespace mesh {
+    template <typename T>
+    __host__ __device__
+    class Point {
+        /* This data structure holds one point in the cartesian system.
+         * Each Point is a Vec2 data structure with some added functionality,
+         * e.g. distance and angle measurement.
+         *
+         * */
+        Vec2<T> p;
+    public:
+        __host__ __device__
+        Point(const Vec2<T>& p1){
+            p = p1;
+        }
+
+        __host__ __device__
+        Point& operator=(const Vec2<T>& p1){
+            p = p1;
+            return *this;
+        }
+
+        __host__ __device__
+        T distance(const Vec2<T>& p1) {
+            return (p-p1).mag();
+        }
+
+        __host__ __device__
+        T angle(const Vec2<T>& p1) {
+            Vec2<T> p2 = p - p1;
+            return p2.getElement(0) / p2.mag();
+        }
+    };
+
+    namespace cpu {
+
+        template <typename T>
+        class CartesianMesh {
+            /* This data structure defines a mesh in the cartesian co-ordinate system.
+             * The constructor takes the limits of the mesh and sampling parameters and defines a mesh.
+             * The x direction is taken along the width and the y/z is taken along the height.
+             * Each element is stored as a Point in a one dimensional vector in the row major order.
+             * */
+            unsigned int width, height;
+
+            thrust::host_vector<Point<T>> grid;
+
+        public:
+            CartesianMesh(T xInit, T zInit, T xEnd, T zEnd, T xSampling, T zSampling) {
+
+                width  = static_cast<unsigned int>((xEnd - xInit) / xSampling);
+                height = static_cast<unsigned int>((zEnd - zInit) / zSampling);
+
+                grid.resize(width * height);
+
+                auto x = arange<T>(xInit, xEnd, xSampling);
+                auto z = arange<T>(zInit, zEnd, zSampling);
+
+                for (unsigned int j = 0; j < height; j++) {
+                    for(unsigned int i = 0; i < width; i++) {
+                        Point<T> p(x[i], z[j]);
+                        grid[j * width + i] = p;
+                    }
+                }
+            }
+
+            unsigned int getWidth() { return width;}
+            unsigned int getHeight() { return height;}
+
+            Point<T> getPoint(unsigned int j, unsigned int i) {
+                /* returns the coordinate point at row/y/z = j, column/x = i*/
+                return grid[j * width + i];
+            }
+        };
+
+    }
+} // mesh
+
+#endif //PROJECT_MESH_CUH

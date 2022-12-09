@@ -144,7 +144,8 @@ namespace redefined {
 
     template <typename P>
     __host__ __device__ int bessjyv(P v,P x,P &vm,P *jv,P *yv, P *djv,P *dyv){
-        P v0,vl,vg,vv,a,a0,r,x2,bjv0,bjv1,bjvl,f,f0,f1,f2;
+        P v0, vl, vg;
+        P vv,a,a0,r,x2,bjv0,bjv1,bjvl,f,f0,f1,f2;
         P r0,r1,ck,cs,cs0,cs1,sk,qx,px,byv0,byv1,rp,xk,rq;
         P b,ec,w0,w1,bju0,bju1,pv0,pv1,byvk;
         int j,k,l,m,n,kz;

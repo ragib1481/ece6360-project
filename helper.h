@@ -105,11 +105,12 @@ public:
     }
 };
 
-thrust::host_vector<double> arange(const double start, const double end, const double dx) {
+template <typename T>
+thrust::host_vector<T> arange(const T start, const T end, const T dx) {
     /* returns array containing values [start, end) with dx increment
      */
-    thrust::host_vector<double> values;
-    double presentValue = start;
+    thrust::host_vector<T> values;
+    T presentValue = start;
     while (presentValue < end) {
         values.push_back(presentValue);
         presentValue += dx;
