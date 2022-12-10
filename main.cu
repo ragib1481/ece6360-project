@@ -4,11 +4,13 @@
 #include <complex.h>
 #include <chrono>
 
-#include "helper.h"
+#include "helper.cuh"
 #include "Scatter.cuh"
+#include "Vec2.cuh"
 
 using namespace std;
 using namespace std::chrono;
+
 
 int main(int argc, char* argv[]) {
     // parse command line arguments

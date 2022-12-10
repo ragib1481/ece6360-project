@@ -9,41 +9,13 @@
 
 #include "Mesh.cuh"
 #include "Vec3.cuh"
-#include "helper.h"
-#include "myMath.h"
+#include "Vec2.cuh"
+#include "helper.cuh"
+#include "myMath.cuh"
+#include "Sphere.cuh"
 
 
 namespace scatter {
-
-    template <typename T>
-    __host__ __device__
-    thrust::complex<T> Bl(int l, T k, thrust::complex<T> n, T a) {
-        thrust::complex<T> num;
-        thrust::complex<T> den;
-        thrust::complex<T> jl_kna = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
-        thrust::complex<T> jl_ka  = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0));
-        thrust::complex<T> jlp_ka  = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0));
-        thrust::complex<T> jlp_kna = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
-
-        num = jl_ka * jlp_kna * n - jl_kna * jlp_ka;
-        den = jl_kna * redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0)) -
-                redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0)) * jlp_kna * n;
-
-        return thrust::complex<T>(2*l+1,0) * pow(thrust::complex<T>(0,1), l) * num / den;
-
-    }
-
-    template <typename T>
-    __host__ __device__
-    thrust::complex<T> Al(int l, T k, thrust::complex<T> n, T a) {
-        thrust::complex<T> jl_kna = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
-        thrust::complex<T> jl_ka  = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0));
-        thrust::complex<T> jlp_ka  = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0));
-        thrust::complex<T> jlp_kna = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
-        thrust::complex<T> hl_ka  = redefined::spHankel1Complex<T>(l, thrust::complex<T>(k * a, 0));
-        thrust::complex<T> hlp_ka  = redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0));
-        return hlp_ka;
-    }
 
     template <typename T>
     __host__ __device__
@@ -71,6 +43,7 @@ namespace scatter {
                     thrust::complex<T>(redefined::legendre<T>(l, cos(theta)), 0);
         }
     }
+
 
     namespace cpu {
         class MieScatter {

@@ -7,42 +7,12 @@
 
 #include <thrust/host_vector.h>
 #include "Vec3.cuh"
-#include "helper.h"
+#include "Vec2.cuh"
+#include "helper.cuh"
+#include "Sphere.cuh"
 
 
 namespace mesh {
-    template <typename T>
-    __host__ __device__
-    class Point {
-        /* This data structure holds one point in the cartesian system.
-         * Each Point is a Vec2 data structure with some added functionality,
-         * e.g. distance and angle measurement.
-         *
-         * */
-        Vec2<T> p;
-    public:
-        __host__ __device__
-        Point(const Vec2<T>& p1){
-            p = p1;
-        }
-
-        __host__ __device__
-        Point& operator=(const Vec2<T>& p1){
-            p = p1;
-            return *this;
-        }
-
-        __host__ __device__
-        T distance(const Vec2<T>& p1) {
-            return (p-p1).mag();
-        }
-
-        __host__ __device__
-        T angle(const Vec2<T>& p1) {
-            Vec2<T> p2 = p - p1;
-            return p2.getElement(0) / p2.mag();
-        }
-    };
 
     namespace cpu {
 

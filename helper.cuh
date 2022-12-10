@@ -2,8 +2,8 @@
 // Created by ragib1481 on 11/28/22.
 //
 
-#ifndef PROJECT_HELPER_H
-#define PROJECT_HELPER_H
+#ifndef PROJECT_HELPER_CUH
+#define PROJECT_HELPER_CUH
 
 #include <thrust/host_vector.h>
 #include <fstream>
@@ -218,4 +218,4 @@ int factorial(int n) {
     return val;
 }
 
-#endif //PROJECT_HELPER_H
+#endif //PROJECT_HELPER_CUH

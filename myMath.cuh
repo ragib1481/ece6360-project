@@ -2,11 +2,11 @@
 // Created by ragib1481 on 12/6/22.
 //
 
-#ifndef PROJECT_MYMATH_H
-#define PROJECT_MYMATH_H
+#ifndef PROJECT_MYMATH_CUH
+#define PROJECT_MYMATH_CUH
 
 #include <math.h>
-#include "helper.h"
+#include "helper.cuh"
 
 #define el 0.5772156649015329
 
@@ -445,4 +445,4 @@ namespace redefined {
 }
 
 
-#endif //PROJECT_MYMATH_H
+#endif //PROJECT_MYMATH_CUH

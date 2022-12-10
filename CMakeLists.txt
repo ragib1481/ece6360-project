@@ -11,7 +11,7 @@ find_package(Boost REQUIRED)
 include_directories(${OPENCV_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
 
-add_executable(project main.cu helper.h myMath.h Vec3.cuh Mesh.cuh Scatter.cuh)
+add_executable(project main.cu helper.cuh myMath.cuh Vec3.cuh Mesh.cuh Scatter.cuh Sphere.cuh Vec2.cuh)
 
 configure_file(parameter.txt parameter.txt COPYONLY)
 
