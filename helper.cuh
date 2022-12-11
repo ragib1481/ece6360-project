@@ -9,36 +9,35 @@
 #include <fstream>
 #include <string>
 
+#include "Sphere.cuh"
+#include "Vec2.cuh"
+#include "Vec3.cuh"
+
 
 template <typename T>
-struct doublet {
-    T x = 0; T y = 0;
-};
-
 class Parameters {
 public:
-    doublet<unsigned short> dim;                        // dimension of sample along x and y
-    doublet<double> sampling;                            // sampling interval along x and Y
-    doublet<unsigned short> numSamples;                 // samples along x and y
-    double na;                                           // numerical aperture of focusing optics
-    double k;                                            // wavenubmer for simulation
-    double zStart;
-    double zEnd;
-    double zSampling;
+    Vec2<T> sampling;                               // sampling interval along first and second dimension
+    T xStart;                                       // start of x
+    T xEnd;                                         // end of x
+    T zStart;                                       // start of z
+    T zEnd;                                         // end of z
+    T na;                                           // numerical aperture of focusing optics
+    T k;                                            // wavenumber for simulation
+    Vec2<T> kUnitVector;                            // direction of k
+    Vec2<T> focus;                                  // focal point
+    thrust::host_vector<Sphere<T>> spheres;         // list of spheres in the mesh
 
     // default constructor
     Parameters() {
-        dim.x           = 0;
-        dim.y           = 0;
-        sampling.x      = 0;
-        sampling.y      = 0;
-        numSamples.x    = 0;
-        numSamples.y    = 0;
-        na              = 0;
-        k               = 0;
+        xStart          = 0;
+        xEnd            = 0;
         zStart          = 0;
         zEnd            = 0;
-        zSampling       = 0;
+        na              = 0;
+        k               = 0;
+        sampling        = 0;
+        kUnitVector     = 0;
     }
 
     // construct object from specified parameter file
@@ -48,15 +47,19 @@ public:
         infile.open(filename);
         if (infile.is_open()) {
             infile >> discard;
-            infile >> dim.x;
-            infile >> dim.y;
+            infile >> xStart;
+            infile >> discard;
+            infile >> xEnd;
 
             infile >> discard;
-            infile >> sampling.x;
-            infile >> sampling.y;
+            infile >> zStart;
+            infile >> discard;
+            infile >> zEnd;
 
-            numSamples.x = (unsigned short) ((double)dim.x / sampling.x);
-            numSamples.y = (unsigned short) ((double)dim.y / sampling.y);
+            T samplingTemp;
+            infile >> discard;
+            infile >> samplingTemp;     sampling.setElement(0, samplingTemp);
+            infile >> samplingTemp;     sampling.setElement(1, samplingTemp);
 
             infile >> discard;
             infile >> na;
@@ -65,43 +68,87 @@ public:
             infile >> k;                                                            // load wavelength
             k = 2 * M_PI / k;                                                       // wavelength to wave-number
 
+            T kUnitVectorTemp;
             infile >> discard;
-            infile >> zStart;
+            infile >> kUnitVectorTemp;
+            kUnitVector.setElement(0, kUnitVectorTemp);
+            infile >> kUnitVectorTemp;
+            kUnitVector.setElement(1, kUnitVectorTemp);
 
+            T focusTemp;
             infile >> discard;
-            infile >> zEnd;
+            infile >> focusTemp;
+            focus.setElement(0, focusTemp);
+            infile >> focusTemp;
+            focus.setElement(1, focusTemp);
 
+            T temp1, temp2, r;
             infile >> discard;
-            infile >> zSampling;
+            while (infile.peek() !=EOF) {
+                // load sphere center
+                infile >> temp1;
+                infile >> temp2;
+                Vec2<T> c(temp1, temp2);
+
+                // load radius;
+                infile >> r;
+
+                // load refractive index
+                infile >> temp1;
+                infile >> temp2;
+                thrust::complex<T> n(temp1, temp2);
+
+                Sphere<T> sp(c, r, n, k);
+                spheres.push_back(sp);
+            }
 
             infile.close();
         }
-    };
+    }
 
     // copy constructor
     Parameters(const Parameters& params) {
-        dim              = params.dim;
-        sampling         = params.sampling;
-        numSamples       = params.numSamples;
-        na               = params.na;
-        k                = params.k;
+        xStart           = params.xStart;
+        xEnd             = params.xEnd;
         zStart           = params.zStart;
         zEnd             = params.zEnd;
-        zSampling        = params.zSampling;
+        sampling         = params.sampling;
+        na               = params.na;
+        k                = params.k;
+        kUnitVector      = params.kUnitVector;
+        focus            = params.focus;
+        spheres          = params.spheres;
     }
 
     // overload assignment operator
     Parameters& operator=(const Parameters& params) {
-        dim                 = params.dim;
-        sampling            = params.sampling;
-        numSamples          = params.numSamples;
-        na                  = params.na;
-        k                   = params.k;
-        zStart              = params.zStart;
-        zEnd                = params.zEnd;
-        zSampling           = params.zSampling;
+        xStart           = params.xStart;
+        xEnd             = params.xEnd;
+        zStart           = params.zStart;
+        zEnd             = params.zEnd;
+        sampling         = params.sampling;
+        na               = params.na;
+        k                = params.k;
+        kUnitVector      = params.kUnitVector;
+        focus            = params.focus;
+        spheres          = params.spheres;
 
         return *this;
+    }
+
+    void print() {
+        std::cout << "x:                    " << xStart << " " << xEnd << std::endl;
+        std::cout << "z:                    " << zStart << " " << zEnd << std::endl;
+        std::cout << "sampling:             " << sampling << std::endl;
+        std::cout << "numerical aperture:   " << na << std::endl;
+        std::cout << "wavelength:           " << 2*M_PI/k << std::endl;
+        std::cout << "k dir:                " << kUnitVector << std::endl;
+        std::cout << "focus:                " << focus << std::endl;
+
+        for (int i =0; i < spheres.size(); i++) {
+            std::cout << spheres[i].center() << " " << spheres[i].radius() << " "
+                      << spheres[i].refractiveIndex() << std::endl;
+        }
     }
 };
 
@@ -207,15 +254,6 @@ void fftshift2d(thrust::host_vector<T>& data, const int width, const int height)
             j++; k++;
         }
     }
-}
-
-__host__ __device__
-int factorial(int n) {
-    int val = 1;
-    for (int i = 2; i <= n; i++) {
-        val *= i;
-    }
-    return val;
 }
 
 #endif //PROJECT_HELPER_CUH

@@ -10,6 +10,15 @@
 
 #define el 0.5772156649015329
 
+__host__ __device__
+int factorial(int n) {
+    int val = 1;
+    for (int i = 2; i <= n; i++) {
+        val *= i;
+    }
+    return val;
+}
+
 namespace redefined {
     template <typename P>
     __host__ __device__ int msta1(P x,int mp)
@@ -370,7 +379,7 @@ namespace redefined {
     }
 
     template <typename T>
-    __host__ __device__ T legendre(const unsigned int n, const T& x) {
+    __host__ __device__ T legendre(const int n, const T& x) {
         T pn;
         T pn_2 = x;
         T pn_1 = (static_cast<T>(3.0) * x * x - static_cast<T>(1.0)) * static_cast<T>(0.5);
@@ -378,8 +387,9 @@ namespace redefined {
         if (n == 0) return static_cast<T>(1.0);
         if (n == 1) return pn_2;
         if (n == 2) return pn_1;
+        if (n == -1) return static_cast<T>(1.0);
 
-        for (unsigned int l = 3; l <= n; l++) {
+        for (int l = 3; l <= n; l++) {
             pn = ((static_cast<T>(2.0) * static_cast<T>(l) - static_cast<T>(1.0)) * x * pn_1 - (static_cast<T>(l) - static_cast<T>(1.0)) * pn_2) / static_cast<T>(l);
             pn_2 = pn_1;
             pn_1 = pn;

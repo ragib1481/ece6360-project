@@ -25,9 +25,14 @@ namespace mesh {
              * */
             unsigned int width, height;
 
-            thrust::host_vector<Point<T>> grid;
+            thrust::host_vector<Vec2<T>> grid;
 
         public:
+            CartesianMesh() {
+                width  = static_cast<unsigned int>(0);
+                height = static_cast<unsigned int>(0);
+            }
+
             CartesianMesh(T xInit, T zInit, T xEnd, T zEnd, T xSampling, T zSampling) {
 
                 width  = static_cast<unsigned int>((xEnd - xInit) / xSampling);
@@ -40,7 +45,7 @@ namespace mesh {
 
                 for (unsigned int j = 0; j < height; j++) {
                     for(unsigned int i = 0; i < width; i++) {
-                        Point<T> p(x[i], z[j]);
+                        Vec2<T> p(x[i], z[j]);
                         grid[j * width + i] = p;
                     }
                 }
@@ -49,7 +54,7 @@ namespace mesh {
             unsigned int getWidth() { return width;}
             unsigned int getHeight() { return height;}
 
-            Point<T> getPoint(unsigned int j, unsigned int i) {
+            Vec2<T> getPoint(unsigned int j, unsigned int i) {
                 /* returns the coordinate point at row/y/z = j, column/x = i*/
                 return grid[j * width + i];
             }

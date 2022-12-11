@@ -1,7 +1,12 @@
-dimension: 256 256
+xStart: -64.0
+xEnd: 64.0
+zStart: -64.0
+zEnd: 64.0
 sampling: 0.5 0.5
 numerical_aperture: 0.2
-wavelength: 0.85
-zStart: -512
-zEnd: 512
-zSampling: 1
+wavelength: 2.5
+k_direction: 0 1
+focus: 0 0
+spheres:
+2 3 1.5 1.4 0.05
+0 1 1.0 1.4 0.12
