@@ -8,6 +8,8 @@
 #include <thrust/complex.h>
 
 #include <math.h>
+#include <opencv2/opencv_modules.hpp>
+#include <opencv2/opencv.hpp>
 
 #include "Mesh.cuh"
 #include "Vec3.cuh"
@@ -20,7 +22,7 @@
 namespace scatter {
 
     template <typename T>
-    //__host__ __device__
+    __host__ __device__
     thrust::complex<T> Es_l(const thrust::complex<T> bl, const T k, const T r, const T cosTheta, const int l) {
         thrust::complex<T> val;
         val = bl * redefined::spHankel1Complex(l, thrust::complex<T>(k * r, 0));
@@ -29,7 +31,7 @@ namespace scatter {
     }
 
     template <typename T>
-    //__host__ __device__
+    __host__ __device__
     thrust::complex<T> Ei_l(const thrust::complex<T> al, const thrust::complex<T> n,
                             const T k, const T r, const T cosTheta, const int l) {
         thrust::complex<T> val;
@@ -40,7 +42,7 @@ namespace scatter {
     }
 
     template <typename T>
-    //__host__ __device__
+    __host__ __device__
     thrust::complex<T> Ef_l(const T k, const T r, const T cosTheta,
                             const int l, const T cosAlpha1, const T cosAlpha2) {
         thrust::complex<T> val;
@@ -108,6 +110,9 @@ namespace scatter {
                 thrust::complex<T> ei_l_temp;
                 thrust::complex<T> es_l_temp;
                 thrust::complex<T> ef_l_temp;
+                Vec2<T> r;
+                T distance;
+                T cosTheta;
                 for (int j = 0; j < mesh.getHeight(); j++) {
                     for (int i = 0; i < mesh.getWidth(); i++) {
                         // reset temporary variables
@@ -118,11 +123,10 @@ namespace scatter {
 
                         // iterate through all spheres to calculate the field at the present point
                         for (auto sphere: spheres) {
-                            Vec2<T> r = mesh.getPoint(j, i) - sphere.center();
-                            T distance = r.mag();
-                            T cosTheta;
+                            r = mesh.getPoint(j, i) - sphere.center();
+                            distance = r.mag();
                             if (distance < 0.001) {
-                                cosTheta = 1;
+                                cosTheta = 0;
                             }
                             else {
                                 cosTheta = cos(r.getElement(0) / distance); // placeholder
@@ -153,10 +157,37 @@ namespace scatter {
                 thrust::host_vector<T> imag(field.size());
 
                 for (int i = 0; i < field.size(); i++) {
-                    mag[i] = field[i];
+                    mag[i] = abs(field[i]);
                     real[i] = field[i].real();
                     imag[i] = field[i].imag();
                 }
+
+                // save magnitude of the result
+                cv::Mat magImg(mesh.getHeight(), mesh.getWidth(), CV_32FC1, &mag[0]);
+                cv::Mat normMagImage;
+                cv::normalize(magImg, normMagImage, 0, 255, cv::NORM_MINMAX);
+                normMagImage.convertTo(normMagImage, CV_8UC1);
+                cv::Mat magImgColor;
+                cv::applyColorMap(normMagImage, magImgColor, cv::COLORMAP_JET);
+                cv::imwrite("./magnitude.png", magImgColor);
+
+                // save real part of the result
+                cv::Mat realImg(mesh.getHeight(), mesh.getWidth(), CV_32FC1, &real[0]);
+                cv::Mat normRealImage;
+                cv::normalize(realImg, normRealImage, 0, 255, cv::NORM_MINMAX);
+                normRealImage.convertTo(normRealImage, CV_8UC1);
+                cv::Mat realImgColor;
+                cv::applyColorMap(normRealImage, realImgColor, cv::COLORMAP_JET);
+                cv::imwrite("./real.png", realImgColor);
+
+                // save imag part of the result
+                cv::Mat imagImg(mesh.getHeight(), mesh.getWidth(), CV_32FC1, &imag[0]);
+                cv::Mat normImagImage;
+                cv::normalize(imagImg, normImagImage, 0, 255, cv::NORM_MINMAX);
+                normImagImage.convertTo(normImagImage, CV_8UC1);
+                cv::Mat imagImgColor;
+                cv::applyColorMap(normImagImage, imagImgColor, cv::COLORMAP_JET);
+                cv::imwrite("./imag.png", imagImgColor);
             }
         };
     }

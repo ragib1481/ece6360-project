@@ -22,9 +22,11 @@ int main(int argc, char* argv[]) {
     cout << filename << endl;
     // define simulation parameters.
     Parameters<float> parameters("./" + filename);
+    parameters.print();
 
     scatter::cpu::MieScatter<float> scatterer(parameters);
     scatterer.scatter();
+    scatterer.saveResult();
 
     // load all simulation parameters from file
     // pass the simulation parameters to the MieScatter object for simulation
