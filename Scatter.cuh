@@ -25,7 +25,7 @@ namespace scatter {
     __host__ __device__
     thrust::complex<T> Es_l(const thrust::complex<T> bl, const T k, const T r, const T cosTheta, const int l) {
         thrust::complex<T> val;
-        val = bl * redefined::spHankel1Complex(l, thrust::complex<T>(k * r, 0));
+        val = bl * redefined::spHankel1Complex<T>(l, thrust::complex<T>(k * r, 0));
         val *= thrust::complex<T>(redefined::legendre<T>(l, cosTheta), 0);
         return val;
     }
@@ -36,7 +36,7 @@ namespace scatter {
                             const T k, const T r, const T cosTheta, const int l) {
         thrust::complex<T> val;
         val = al;
-        val *= redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * r) * n);
+        val *= redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * r, 0) * n);
         val *= thrust::complex<T>(redefined::legendre<T>(l, cosTheta), 0);
         return val;
     }
@@ -47,7 +47,7 @@ namespace scatter {
                             const int l, const T cosAlpha1, const T cosAlpha2) {
         thrust::complex<T> val;
         val = pow(thrust::complex<T>(0, 1), l);
-        val *= redefined::spBesselJComplex(l, thrust::complex<T>(k * r, 0));
+        val *= redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * r, 0));
         val *= thrust::complex<T>(redefined::legendre<T>(l, cosTheta), 0);
         val *= (redefined::legendre<T>(l+1, cosAlpha1) - redefined::legendre<T>(l+1, cosAlpha2) -
                 redefined::legendre<T>(l-1, cosAlpha1) + redefined::legendre<T>(l-1, cosAlpha2));
@@ -84,6 +84,9 @@ namespace scatter {
 
                 // resize the field vector
                 field.resize(mesh.getHeight() * mesh.getWidth());
+                for (int i = 0; i < field.size(); i++) {
+                    field[i] = thrust::complex<T>(0, 0);
+                }
 
                 // initialize other simulation parameters;
                 k           = parameters.k;
@@ -113,37 +116,48 @@ namespace scatter {
                 Vec2<T> r;
                 T distance;
                 T cosTheta;
+                Vec2<T> c;
+                thrust::complex<T> shiftedPhase;
                 for (int j = 0; j < mesh.getHeight(); j++) {
                     for (int i = 0; i < mesh.getWidth(); i++) {
                         // reset temporary variables
                         totalField = thrust::complex<T> (0, 0);
-                        ei_l_temp = thrust::complex<T> (0, 0);
-                        es_l_temp = thrust::complex<T> (0, 0);
-                        ef_l_temp = thrust::complex<T> (0, 0);
 
                         // iterate through all spheres to calculate the field at the present point
                         for (auto sphere: spheres) {
+                            // reset temporary variables for each sphere
+                            ei_l_temp = thrust::complex<T> (0, 0);
+                            es_l_temp = thrust::complex<T> (0, 0);
+                            ef_l_temp = thrust::complex<T> (0, 0);
+
+                            c = sphere.center() - focus;
+                            shiftedPhase = exp(thrust::complex<T>(0, k * kUnitVec.dot(c)));
                             r = mesh.getPoint(j, i) - sphere.center();
                             distance = r.mag();
-                            if (distance < 0.001) {
-                                cosTheta = 0;
-                            }
-                            else {
-                                cosTheta = cos(r.getElement(0) / distance); // placeholder
-                            }
+
+                            // if (distance < 0.001) {
+                            //     cosTheta = 0;
+                            // }
+                            // else {
+                            //     cosTheta = cos(r.getElement(0) / distance);
+                            // }
+                            cosTheta = cos(r.getElement(0) / distance);
+
                             if (distance < sphere.radius()) {
                                 for (unsigned int l = 0; l <= sphere.getMaxOrder(); l++) {
                                     ei_l_temp += Ei_l<T>(sphere.getAl(l), sphere.refractiveIndex(),
-                                                         k, sphere.radius(), cosTheta, l);
+                                                         k, distance, cosTheta, l);
                                 }
-                                totalField += ei_l_temp;
+                                totalField +=  shiftedPhase * ei_l_temp;
                             }
                             else {
                                 for (unsigned int l = 0; l <= sphere.getMaxOrder(); l++) {
-                                    es_l_temp += Es_l<T>(sphere.getBl(l), k, sphere.radius(), cosTheta, l);
-                                    ef_l_temp += Ef_l<T>(k, sphere.radius(), cosTheta, l, cosAlpha1, cosAlpha2);
+                                    es_l_temp += Es_l<T>(sphere.getBl(l), k, distance, cosTheta, l);
+                                    ef_l_temp += Ef_l<T>(k, distance, cosTheta, l, cosAlpha1, cosAlpha2);
                                 }
-                                totalField += thrust::complex<T>(2 * M_PI, 0) * ef_l_temp + es_l_temp;
+                                totalField += thrust::complex<T>(2 * M_PI, 0) * ef_l_temp + shiftedPhase * es_l_temp;
+                                // totalField += shiftedPhase * es_l_temp;
+                                // totalField += thrust::complex<T>(2 * M_PI, 0) * ef_l_temp;
                             }
                         }
                         field[j * mesh.getWidth() + i] = totalField;

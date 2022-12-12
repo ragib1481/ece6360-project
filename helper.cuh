@@ -74,6 +74,7 @@ public:
             kUnitVector.setElement(0, kUnitVectorTemp);
             infile >> kUnitVectorTemp;
             kUnitVector.setElement(1, kUnitVectorTemp);
+            kUnitVector = kUnitVector / kUnitVector.mag();
 
             T focusTemp;
             infile >> discard;

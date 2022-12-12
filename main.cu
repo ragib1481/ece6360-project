@@ -25,7 +25,10 @@ int main(int argc, char* argv[]) {
     parameters.print();
 
     scatter::cpu::MieScatter<float> scatterer(parameters);
+    auto start = high_resolution_clock::now();
     scatterer.scatter();
+    auto end = high_resolution_clock::now();
+    cout << "cpu elapsed time: " << (chrono::duration_cast<seconds>(end-start)).count() << endl;
     scatterer.saveResult();
 
     // load all simulation parameters from file

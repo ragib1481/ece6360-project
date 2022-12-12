@@ -25,7 +25,7 @@ thrust::complex<T> Bl(int l, T k, thrust::complex<T> n, T a) {
 
     num = jl_ka * jlp_kna * n - jl_kna * jlp_ka;
     den = jl_kna * redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0)) -
-          redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0)) * jlp_kna * n;
+          redefined::spHankel1Complex<T>(l, thrust::complex<T>(k * a, 0)) * jlp_kna * n;
 
     return thrust::complex<T>(2*l+1,0) * pow(thrust::complex<T>(0,1), l) * num / den;
 
@@ -56,13 +56,14 @@ class Sphere {
     thrust::complex<T> n;                       // complex refractive index of the sphere
     thrust::complex<T>* bl;                     // scattering co-efficient Bl
     thrust::complex<T>* al;                     // scattering co-efficient Al
-    unsigned int Nl;                                     // max order to compute the scattering co-efficients for.
+    unsigned int Nl = 30;                                     // max order to compute the scattering co-efficients for.
 
 public:
     __host__ __device__
     Sphere(Vec2<T> c, T r, thrust::complex<T>n, T k):
                     c(c), r(r), n(n){
         Nl = static_cast<int>(ceil(2.0 + k * r + 4.0 * cbrt(k * r)));
+        // Nl = 500;
         al = new thrust::complex<T>[Nl+1];
         bl = new thrust::complex<T>[Nl+1];
 
