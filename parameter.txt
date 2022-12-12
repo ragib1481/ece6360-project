@@ -4,8 +4,8 @@ zStart: -64.0
 zEnd: 64.0
 sampling: 0.5 0.5
 numerical_aperture: 0.2
-wavelength: 3.1
-k_direction: 1 1
+wavelength: 6.5
+k_direction: 0 1
 focus: 0 0
 spheres:
 0 0 5.0 1.4 0.0

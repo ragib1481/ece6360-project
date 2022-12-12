@@ -141,7 +141,7 @@ namespace scatter {
                             // else {
                             //     cosTheta = cos(r.getElement(0) / distance);
                             // }
-                            cosTheta = r.getElement(0) / distance;
+                            cosTheta = r.getElement(1) / distance;
 
                             if (distance < sphere.radius()) {
                                 for (unsigned int l = 0; l <= sphere.getMaxOrder(); l++) {
@@ -155,7 +155,7 @@ namespace scatter {
                                     es_l_temp += Es_l<T>(sphere.getBl(l), k, distance, cosTheta, l);
                                     ef_l_temp += Ef_l<T>(k, distance, cosTheta, l, cosAlpha1, cosAlpha2);
                                 }
-                                totalField += thrust::complex<T>(2 * M_PI, 0) * ef_l_temp + shiftedPhase * es_l_temp;
+                                // totalField += thrust::complex<T>(2 * M_PI, 0) * ef_l_temp + shiftedPhase * es_l_temp;
                                 // totalField += shiftedPhase * es_l_temp;
                                 // totalField += thrust::complex<T>(2 * M_PI, 0) * ef_l_temp;
                             }

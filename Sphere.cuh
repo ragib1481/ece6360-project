@@ -18,14 +18,15 @@ __host__ __device__
 thrust::complex<T> Bl(int l, T k, thrust::complex<T> n, T a) {
     thrust::complex<T> num;
     thrust::complex<T> den;
-    thrust::complex<T> jl_kna = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
-    thrust::complex<T> jl_ka  = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0));
+    thrust::complex<T> jl_kna  = redefined::spBesselJComplex<T> (l, thrust::complex<T>(k * a, 0) * n);
+    thrust::complex<T> jl_ka   = redefined::spBesselJComplex<T> (l, thrust::complex<T>(k * a, 0));
     thrust::complex<T> jlp_ka  = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0));
     thrust::complex<T> jlp_kna = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
+    thrust::complex<T> hlp_ka  = redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0));
+    thrust::complex<T> hl_ka   = redefined::spHankel1Complex<T> (l, thrust::complex<T>(k * a, 0));
 
     num = jl_ka * jlp_kna * n - jl_kna * jlp_ka;
-    den = jl_kna * redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0)) -
-          redefined::spHankel1Complex<T>(l, thrust::complex<T>(k * a, 0)) * jlp_kna * n;
+    den = jl_kna * hlp_ka - hl_ka * jlp_kna * n;
 
     return thrust::complex<T>(2*l+1,0) * pow(thrust::complex<T>(0,1), l) * num / den;
 
@@ -35,11 +36,11 @@ thrust::complex<T> Bl(int l, T k, thrust::complex<T> n, T a) {
 template <typename T>
 __host__ __device__
 thrust::complex<T> Al(int l, T k, thrust::complex<T> n, T a) {
-    thrust::complex<T> jl_kna = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
-    thrust::complex<T> jl_ka  = redefined::spBesselJComplex<T>(l, thrust::complex<T>(k * a, 0));
+    thrust::complex<T> jl_kna  = redefined::spBesselJComplex<T> (l, thrust::complex<T>(k * a, 0) * n);
+    thrust::complex<T> jl_ka   = redefined::spBesselJComplex<T> (l, thrust::complex<T>(k * a, 0));
     thrust::complex<T> jlp_ka  = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0));
     thrust::complex<T> jlp_kna = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
-    thrust::complex<T> hl_ka  = redefined::spHankel1Complex<T>(l, thrust::complex<T>(k * a, 0));
+    thrust::complex<T> hl_ka   = redefined::spHankel1Complex<T> (l, thrust::complex<T>(k * a, 0));
     thrust::complex<T> hlp_ka  = redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0));
 
     thrust::complex<T> num = jl_ka * hlp_ka - jlp_ka * hl_ka;
