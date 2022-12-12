@@ -141,7 +141,7 @@ namespace scatter {
                             // else {
                             //     cosTheta = cos(r.getElement(0) / distance);
                             // }
-                            cosTheta = cos(r.getElement(0) / distance);
+                            cosTheta = r.getElement(0) / distance;
 
                             if (distance < sphere.radius()) {
                                 for (unsigned int l = 0; l <= sphere.getMaxOrder(); l++) {

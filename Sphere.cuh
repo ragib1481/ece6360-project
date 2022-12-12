@@ -62,7 +62,7 @@ public:
     __host__ __device__
     Sphere(Vec2<T> c, T r, thrust::complex<T>n, T k):
                     c(c), r(r), n(n){
-        Nl = static_cast<int>(ceil(2.0 + k * r + 4.0 * cbrt(k * r)));
+        // Nl = static_cast<int>(ceil(2.0 + k * r + 4.0 * cbrt(k * r)));
         // Nl = 500;
         al = new thrust::complex<T>[Nl+1];
         bl = new thrust::complex<T>[Nl+1];
