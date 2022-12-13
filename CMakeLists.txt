@@ -7,9 +7,9 @@ set(CMAKE_CUDA_FLAGS_RELEASE "-O3 -fmad=false --expt-relaxed-constexpr --compile
 
 find_package(OpenCV REQUIRED)
 
-include_directories(${OPENCV_INCLUDE_DIRS})
+include_directories(${OpenCV_INCLUDE_DIR})
 
-add_executable(project main.cu helper.cuh myMath.cuh Vec3.cuh Mesh.cuh Scatter.cuh Sphere.cuh Vec2.cuh)
+add_executable(project main.cu helper.cuh myMath.cuh Vec3.cuh Mesh.cuh Scatter.cuh Sphere.cuh Vec2.cuh Bessel.cuh)
 
 configure_file(parameter.txt parameter.txt COPYONLY)
 

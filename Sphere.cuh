@@ -10,42 +10,50 @@
 #include "Vec2.cuh"
 #include "Vec3.cuh"
 #include "myMath.cuh"
+#include "Bessel.cuh"
 
 // ************************ functions to calculate scattering co-efficients ****************************
-// TODO: revise this code
-template <typename T>
-__host__ __device__
-thrust::complex<T> Bl(int l, T k, thrust::complex<T> n, T a) {
-    thrust::complex<T> num;
-    thrust::complex<T> den;
-    thrust::complex<T> jl_kna  = redefined::spBesselJComplex<T> (l, thrust::complex<T>(k * a, 0) * n);
-    thrust::complex<T> jl_ka   = redefined::spBesselJComplex<T> (l, thrust::complex<T>(k * a, 0));
-    thrust::complex<T> jlp_ka  = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0));
-    thrust::complex<T> jlp_kna = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
-    thrust::complex<T> hlp_ka  = redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0));
-    thrust::complex<T> hl_ka   = redefined::spHankel1Complex<T> (l, thrust::complex<T>(k * a, 0));
-
-    num = jl_ka * jlp_kna * n - jl_kna * jlp_ka;
-    den = jl_kna * hlp_ka - hl_ka * jlp_kna * n;
-
-    return thrust::complex<T>(2*l+1,0) * pow(thrust::complex<T>(0,1), l) * num / den;
-
-}
 
 // TODO: revise this code
 template <typename T>
 __host__ __device__
-thrust::complex<T> Al(int l, T k, thrust::complex<T> n, T a) {
-    thrust::complex<T> jl_kna  = redefined::spBesselJComplex<T> (l, thrust::complex<T>(k * a, 0) * n);
-    thrust::complex<T> jl_ka   = redefined::spBesselJComplex<T> (l, thrust::complex<T>(k * a, 0));
-    thrust::complex<T> jlp_ka  = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0));
-    thrust::complex<T> jlp_kna = redefined::spBesselJPComplex<T>(l, thrust::complex<T>(k * a, 0) * n);
-    thrust::complex<T> hl_ka   = redefined::spHankel1Complex<T> (l, thrust::complex<T>(k * a, 0));
-    thrust::complex<T> hlp_ka  = redefined::spHankel1PComplex<T>(l, thrust::complex<T>(k * a, 0));
+void AlBl(thrust::complex<T>* al, thrust::complex<T>* bl,
+          int Nl, T k, thrust::complex<T> n, T a) {
+    T vm;
+    thrust::complex<T>* jl_kna  = new thrust::complex<T>[Nl + 2];
+    thrust::complex<T>* jlp_kna = new thrust::complex<T>[Nl + 2];
+    thrust::complex<T>* yl_kna  = new thrust::complex<T>[Nl + 2];
+    thrust::complex<T>* ylp_kna = new thrust::complex<T>[Nl + 2];
 
-    thrust::complex<T> num = jl_ka * hlp_ka - jlp_ka * hl_ka;
-    thrust::complex<T> den = jl_kna * hlp_ka - hl_ka * jlp_kna * n;
-    return thrust::complex<T>(2 * l + 1, 0) * pow(thrust::complex<T>(0,1), l) * num / den;
+    stim::cbessjyva_sph(Nl, thrust::complex<T>(k * a, 0) * n, vm,
+                        jl_kna, yl_kna, jlp_kna, ylp_kna);
+
+    thrust::complex<T>* jl_ka  = new thrust::complex<T>[Nl + 2];
+    thrust::complex<T>* jlp_ka = new thrust::complex<T>[Nl + 2];
+    thrust::complex<T>* yl_ka  = new thrust::complex<T>[Nl + 2];
+    thrust::complex<T>* ylp_ka = new thrust::complex<T>[Nl + 2];
+
+    stim::cbessjyva_sph(Nl, thrust::complex<T>(k * a, 0), vm,
+                        jl_ka, yl_ka, jlp_ka, ylp_ka);
+
+    thrust::complex<T>* hl_ka  = new thrust::complex<T>[Nl + 1];
+    stim::chankelva_sph(Nl, thrust::complex<T>(k * a, 0), hl_ka);
+
+    thrust::complex<T>* hlp_ka = new thrust::complex<T>[Nl + 1];
+    stim::chankelvap_sph(Nl, thrust::complex<T>(k * a, 0), hl_ka);
+
+    for (int l = 0; l <= Nl; l++) {
+        al[l] = (jl_ka[l] * hlp_ka[l] - jlp_ka[l] * hl_ka[l]) /
+                (jl_kna[l] * hlp_ka[l] - hl_ka[l] * jlp_kna[l] * n);
+
+        bl[l] = (jl_ka[l] * jlp_kna[l] * n - jlp_kna[l] * jl_ka[l]) /
+                (jl_kna[l] * hlp_ka[l] - hl_ka[l] * jlp_kna[l] * n);
+
+        al[l] = thrust::complex<T>(2 * l + 1, 0) * pow(thrust::complex<T>(0, 1), l)* al[l];
+        bl[l] = thrust::complex<T>(2 * l + 1, 0) * pow(thrust::complex<T>(0, 1), l)* bl[l];
+    }
+    delete[] jl_kna; delete[] jlp_kna; delete[] yl_kna; delete[] ylp_kna;
+    delete[] jl_ka;  delete[] jlp_ka;  delete[] yl_ka;  delete[] ylp_ka;
 }
 
 // ************************ class declaration for a scattering sphere **********************************
@@ -68,10 +76,7 @@ public:
         al = new thrust::complex<T>[Nl+1];
         bl = new thrust::complex<T>[Nl+1];
 
-        for (int l = 0; l <=Nl; l++) {
-            al[l] = Al<T>(l, k, n, r);
-            bl[l] = Bl<T>(l, k, n, r);
-        }
+        AlBl<T>(al, bl, Nl, k, n, r);
     };
 
     __host__ __device__

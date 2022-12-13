@@ -8,6 +8,7 @@
 #include "helper.cuh"
 #include "Scatter.cuh"
 #include "Vec2.cuh"
+#include "Bessel.cuh"
 
 using namespace std;
 using namespace std::chrono;
@@ -30,6 +31,12 @@ int main(int argc, char* argv[]) {
     auto end = high_resolution_clock::now();
     cout << "cpu elapsed time: " << (chrono::duration_cast<seconds>(end-start)).count() << endl;
     scatterer.saveResult();
+
+    // cbessjyva_sph(int v, thrust::complex<P> z, P &vm,
+    //               thrust::complex<P>*cjv,
+    //               thrust::complex<P>*cyv,
+    //               thrust::complex<P>*cjvp,
+    //               thrust::complex<P>*cyvp)
 
     // load all simulation parameters from file
     // pass the simulation parameters to the MieScatter object for simulation
