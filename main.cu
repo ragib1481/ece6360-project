@@ -5,10 +5,8 @@
 #include <complex.h>
 #include <chrono>
 
-#include "helper.cuh"
 #include "Scatter.cuh"
-#include "Vec2.cuh"
-#include "Bessel.cuh"
+#include "helper.cuh"
 
 using namespace std;
 using namespace std::chrono;
@@ -21,26 +19,23 @@ int main(int argc, char* argv[]) {
     string filename(argv[1]);
 
     cout << filename << endl;
-    // define simulation parameters.
+    // load all simulation parameters from file
     Parameters<float> parameters("./" + filename);
     parameters.print();
 
+    // pass the simulation parameters to the MieScatter object for simulation
     scatter::cpu::MieScatter<float> scatterer(parameters);
+
+    // run the simulation
     auto start = high_resolution_clock::now();
     scatterer.scatter();
     auto end = high_resolution_clock::now();
-    cout << "cpu elapsed time: " << (chrono::duration_cast<seconds>(end-start)).count() << endl;
+    cout << "cpu elapsed time: " << (chrono::duration_cast<milliseconds >(end-start)).count() << endl;
+
+    // save simulation results
     scatterer.saveResult();
 
-    // cbessjyva_sph(int v, thrust::complex<P> z, P &vm,
-    //               thrust::complex<P>*cjv,
-    //               thrust::complex<P>*cyv,
-    //               thrust::complex<P>*cjvp,
-    //               thrust::complex<P>*cyvp)
 
-    // load all simulation parameters from file
-    // pass the simulation parameters to the MieScatter object for simulation
-    // save simulation results
 
     return 0;
 }

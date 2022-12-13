@@ -10,7 +10,7 @@
 #define eps 1e-15
 #define el 0.5772156649015329
 
-namespace stim{
+namespace stimLab{
     double PI = M_PI;
     // thrust::complex<double> cii(0.0,1.0);
     // thrust::complex<double> cone(1.0,0.0);
@@ -805,12 +805,12 @@ namespace stim{
         for(int n = 0; n<=v; n++){
 
             if(z != 0){												//handle degenerate case of z = 0
-                cjv[n] = cjv[n] * sqrt(stim::PI/(z * 2.0));
-                cyv[n] = cyv[n] * sqrt(stim::PI/(z * 2.0));
+                cjv[n] = cjv[n] * sqrt(stimLab::PI / (z * 2.0));
+                cyv[n] = cyv[n] * sqrt(stimLab::PI / (z * 2.0));
             }
 
-            cjvp[n] = -1.0 / (z * 2.0) * cjv[n] + cjvp[n] * sqrt(stim::PI / (z * 2.0));
-            cyvp[n] = -1.0 / (z * 2.0) * cyv[n] + cyvp[n] * sqrt(stim::PI / (z * 2.0));
+            cjvp[n] = -1.0 / (z * 2.0) * cjv[n] + cjvp[n] * sqrt(stimLab::PI / (z * 2.0));
+            cyvp[n] = -1.0 / (z * 2.0) * cyv[n] + cyvp[n] * sqrt(stimLab::PI / (z * 2.0));
         }
 
         return 0;

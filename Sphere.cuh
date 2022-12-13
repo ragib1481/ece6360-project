@@ -25,22 +25,22 @@ void AlBl(thrust::complex<T>* al, thrust::complex<T>* bl,
     thrust::complex<T>* yl_kna  = new thrust::complex<T>[Nl + 2];
     thrust::complex<T>* ylp_kna = new thrust::complex<T>[Nl + 2];
 
-    stim::cbessjyva_sph<T>(Nl, thrust::complex<T>(k * a, 0) * n, vm,
-                        jl_kna, yl_kna, jlp_kna, ylp_kna);
+    stimLab::cbessjyva_sph<T>(Nl, thrust::complex<T>(k * a, 0) * n, vm,
+                              jl_kna, yl_kna, jlp_kna, ylp_kna);
 
     thrust::complex<T>* jl_ka  = new thrust::complex<T>[Nl + 2];
     thrust::complex<T>* jlp_ka = new thrust::complex<T>[Nl + 2];
     thrust::complex<T>* yl_ka  = new thrust::complex<T>[Nl + 2];
     thrust::complex<T>* ylp_ka = new thrust::complex<T>[Nl + 2];
 
-    stim::cbessjyva_sph<T>(Nl, thrust::complex<T>(k * a, 0), vm,
-                        jl_ka, yl_ka, jlp_ka, ylp_ka);
+    stimLab::cbessjyva_sph<T>(Nl, thrust::complex<T>(k * a, 0), vm,
+                              jl_ka, yl_ka, jlp_ka, ylp_ka);
 
     thrust::complex<T>* hl_ka  = new thrust::complex<T>[Nl + 1];
-    stim::chankelva_sph<T>(Nl, thrust::complex<T>(k * a, 0), hl_ka);
+    stimLab::chankelva_sph<T>(Nl, thrust::complex<T>(k * a, 0), hl_ka);
 
     thrust::complex<T>* hlp_ka = new thrust::complex<T>[Nl + 1];
-    stim::chankelvap_sph<T>(Nl, thrust::complex<T>(k * a, 0), hl_ka);
+    stimLab::chankelvap_sph<T>(Nl, thrust::complex<T>(k * a, 0), hl_ka);
 
     for (int l = 0; l <= Nl; l++) {
         al[l] = (jl_ka[l] * hlp_ka[l] - jlp_ka[l] * hl_ka[l]) /
@@ -65,7 +65,7 @@ class Sphere {
     thrust::complex<T> n;                       // complex refractive index of the sphere
     thrust::complex<T>* bl;                     // scattering co-efficient Bl
     thrust::complex<T>* al;                     // scattering co-efficient Al
-    unsigned int Nl = 30;                                     // max order to compute the scattering co-efficients for.
+    unsigned int Nl = 50;                                     // max order to compute the scattering co-efficients for.
 
 public:
     __host__ __device__
@@ -86,10 +86,10 @@ public:
     T radius() { return r; }
 
     __host__ __device__
-    thrust::complex<T> getAl(unsigned int i) {return al[i];}
+    thrust::complex<T>* getAl() {return al;}
 
     __host__ __device__
-    thrust::complex<T> getBl(unsigned int i) {return bl[i];}
+    thrust::complex<T>* getBl() {return bl;}
 
     __host__ __device__
     unsigned int getMaxOrder() {return Nl;}
