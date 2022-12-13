@@ -5,12 +5,12 @@
 #ifndef PROJECT_SCATTER_CUH
 #define PROJECT_SCATTER_CUH
 
-#include <opencv2/opencv_modules.hpp>
-#include <opencv2/opencv.hpp>
 #include <thrust/complex.h>
 
+#include <opencv2/opencv.hpp>
 #include <math.h>
 #include <limits>
+
 
 #include "Mesh.cuh"
 #include "Vec3.cuh"

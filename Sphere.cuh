@@ -25,7 +25,7 @@ void AlBl(thrust::complex<T>* al, thrust::complex<T>* bl,
     thrust::complex<T>* yl_kna  = new thrust::complex<T>[Nl + 2];
     thrust::complex<T>* ylp_kna = new thrust::complex<T>[Nl + 2];
 
-    stim::cbessjyva_sph(Nl, thrust::complex<T>(k * a, 0) * n, vm,
+    stim::cbessjyva_sph<T>(Nl, thrust::complex<T>(k * a, 0) * n, vm,
                         jl_kna, yl_kna, jlp_kna, ylp_kna);
 
     thrust::complex<T>* jl_ka  = new thrust::complex<T>[Nl + 2];
@@ -33,14 +33,14 @@ void AlBl(thrust::complex<T>* al, thrust::complex<T>* bl,
     thrust::complex<T>* yl_ka  = new thrust::complex<T>[Nl + 2];
     thrust::complex<T>* ylp_ka = new thrust::complex<T>[Nl + 2];
 
-    stim::cbessjyva_sph(Nl, thrust::complex<T>(k * a, 0), vm,
+    stim::cbessjyva_sph<T>(Nl, thrust::complex<T>(k * a, 0), vm,
                         jl_ka, yl_ka, jlp_ka, ylp_ka);
 
     thrust::complex<T>* hl_ka  = new thrust::complex<T>[Nl + 1];
-    stim::chankelva_sph(Nl, thrust::complex<T>(k * a, 0), hl_ka);
+    stim::chankelva_sph<T>(Nl, thrust::complex<T>(k * a, 0), hl_ka);
 
     thrust::complex<T>* hlp_ka = new thrust::complex<T>[Nl + 1];
-    stim::chankelvap_sph(Nl, thrust::complex<T>(k * a, 0), hl_ka);
+    stim::chankelvap_sph<T>(Nl, thrust::complex<T>(k * a, 0), hl_ka);
 
     for (int l = 0; l <= Nl; l++) {
         al[l] = (jl_ka[l] * hlp_ka[l] - jlp_ka[l] * hl_ka[l]) /

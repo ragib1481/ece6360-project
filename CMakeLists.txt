@@ -4,6 +4,7 @@ project(project CUDA)
 set(CMAKE_CUDA_STANDARD 20)
 
 set(CMAKE_CUDA_FLAGS_RELEASE "-O3 -fmad=false --expt-relaxed-constexpr --compiler-options='-ffp-contract=fast'")
+set(CMAKE_CUDA_FLAGS_DEBUG "-fmad=false --expt-relaxed-constexpr --compiler-options='-ffp-contract=fast'")
 
 find_package(OpenCV REQUIRED)
 
