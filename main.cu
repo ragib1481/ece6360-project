@@ -17,6 +17,8 @@ using namespace std::chrono;
 
 template <typename T>
 void simulateCpu(Parameters<T> parameters) {
+
+    // define scatterer with the user defined parameters
     scatter::cpu::MieScatter<T> scatterer(parameters);
 
     // run the simulation
@@ -31,6 +33,8 @@ void simulateCpu(Parameters<T> parameters) {
 
 template <typename T>
 void simulateGpu(Parameters<T> parameters) {
+
+    // define scatterer with the user defined parameters
     scatter::gpu::MieScatter<T> scatterer(parameters);
 
     // run the simulation
@@ -57,7 +61,7 @@ int main(int argc, char* argv[]) {
     // run the simulation on cpu
     simulateCpu<float>(parameters);
 
-    // run the simulation of gpu
+    // run the simulation on gpu
     simulateGpu<float>(parameters);
 
     return 0;
