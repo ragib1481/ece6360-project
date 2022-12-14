@@ -14,9 +14,7 @@
 
 namespace mesh {
 
-    namespace cpu {
-
-        template <typename T>
+    template <typename T>
         class CartesianMesh {
             /* This data structure defines a mesh in the cartesian co-ordinate system.
              * The constructor takes the limits of the mesh and sampling parameters and defines a mesh.
@@ -58,9 +56,10 @@ namespace mesh {
                 /* returns the coordinate point at row/y/z = j, column/x = i*/
                 return grid[j * width + i];
             }
+
+            thrust::host_vector<Vec2<T>> getGrid() {return grid;}
         };
 
-    }
 } // mesh
 
 #endif //PROJECT_MESH_CUH

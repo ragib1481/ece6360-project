@@ -1,11 +1,11 @@
-xStart: -64.0
-xEnd: 64.0
-zStart: -64.0
-zEnd: 64.0
-sampling: 0.5 0.5
+xStart: -32.0
+xEnd: 32.0
+zStart: -32.0
+zEnd: 32.0
+sampling: 0.25 0.25
 numerical_aperture: 0.2
 wavelength: 3.1
 k_direction: 0 1
 focus: 0 0
 spheres:
-0 0 5.0 1.4 0.01
+0 0 3.0 1.4 0.1

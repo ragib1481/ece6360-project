@@ -12,13 +12,17 @@
 #include "myMath.cuh"
 #include "Bessel.cuh"
 
+#ifndef Nl
+    #define Nl 30
+#endif
+
 // ************************ functions to calculate scattering co-efficients ****************************
 
 // TODO: revise this code
 template <typename T>
 __host__ __device__
 void AlBl(thrust::complex<T>* al, thrust::complex<T>* bl,
-          int Nl, T k, thrust::complex<T> n, T a) {
+          T k, thrust::complex<T> n, T a) {
     T vm;
     thrust::complex<T>* jl_kna  = new thrust::complex<T>[Nl + 2];
     thrust::complex<T>* jlp_kna = new thrust::complex<T>[Nl + 2];
@@ -60,42 +64,56 @@ void AlBl(thrust::complex<T>* al, thrust::complex<T>* bl,
 template <typename T>
 __host__ __device__
 class Sphere {
-    Vec2<T> c;                                  // center of the sphere
-    T r;                                        // radius of the sphere in um
-    thrust::complex<T> n;                       // complex refractive index of the sphere
-    thrust::complex<T>* bl;                     // scattering co-efficient Bl
-    thrust::complex<T>* al;                     // scattering co-efficient Al
-    unsigned int Nl = 50;                                     // max order to compute the scattering co-efficients for.
+    Vec2<T> c;                                      // center of the sphere
+    T r;                                            // radius of the sphere in um
+    thrust::complex<T> n;                           // complex refractive index of the sphere
+    thrust::complex<T> bl[Nl+1];                    // scattering co-efficient Bl
+    thrust::complex<T> al[Nl+1];                    // scattering co-efficient Al
 
 public:
     __host__ __device__
-    Sphere(Vec2<T> c, T r, thrust::complex<T>n, T k):
-                    c(c), r(r), n(n){
-        // Nl = static_cast<int>(ceil(2.0 + k * r + 4.0 * cbrt(k * r)));
-        // Nl = 500;
-        al = new thrust::complex<T>[Nl+1];
-        bl = new thrust::complex<T>[Nl+1];
-
-        AlBl<T>(al, bl, Nl, k, n, r);
+    Sphere(){
+        c = 0;
+        r = 0;
+        n = thrust::complex<T>(0, 0);
+        for (int i = 0; i <= Nl; i++) {
+            al[i] = thrust::complex<T>(0, 0);
+            bl[i] = thrust::complex<T>(0, 0);
+        }
     };
 
     __host__ __device__
-    Vec2<T> center() { return c; }
+    Sphere(Vec2<T> c, T r, thrust::complex<T>n, T k):
+                    c(c), r(r), n(n){
+        AlBl<T>(al, bl, k, n, r);
+    };
+
+    // __host__ __device__
+    // Sphere& operator=(const Sphere& sp) {
+    //     c = sp.c;
+    //     r = sp.r;
+    //     n = sp.n;
+    //     for (int i = 0; i <= Nl; i++) {
+    //         al[i] = sp.al[i];
+    //         bl[i] = sp.bl[i];
+    //     }
+    //     return *this;
+    // };
 
     __host__ __device__
-    T radius() { return r; }
+    Vec2<T> center() const { return c; }
 
     __host__ __device__
-    thrust::complex<T>* getAl() {return al;}
+    T radius() const { return r; }
 
     __host__ __device__
-    thrust::complex<T>* getBl() {return bl;}
+    thrust::complex<T>* getAl() const {return (thrust::complex<T>*)al;}
 
     __host__ __device__
-    unsigned int getMaxOrder() {return Nl;}
+    thrust::complex<T>* getBl() const {return (thrust::complex<T>*)bl;}
 
     __host__ __device__
-    thrust::complex<T> refractiveIndex() {return n;}
+    thrust::complex<T> refractiveIndex() const {return n;}
 };
 
 #endif //PROJECT_SPHERE_CUH

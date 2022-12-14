@@ -106,7 +106,7 @@ public:
     }
 
     __host__ __device__
-    T dot(const Vec2& r) {
+    T dot(const Vec2& r) const{
         T x = vec[0] * r.vec[0] + vec[1] * r.vec[1];
         return x;
     }

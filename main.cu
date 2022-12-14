@@ -5,12 +5,44 @@
 #include <complex.h>
 #include <chrono>
 
+
 #include "Scatter.cuh"
 #include "helper.cuh"
+
+#ifndef Nl
+    #define Nl 30
+#endif
 
 using namespace std;
 using namespace std::chrono;
 
+template <typename T>
+void simulateCpu(Parameters<T> parameters) {
+    scatter::cpu::MieScatter<T> scatterer(parameters);
+
+    // run the simulation
+    auto start = high_resolution_clock::now();
+    scatterer.scatter();
+    auto end = high_resolution_clock::now();
+    cout << "cpu elapsed time: " << (chrono::duration_cast<milliseconds >(end-start)).count() << endl;
+
+    // save simulation results
+    scatterer.saveResult("Cpu");
+}
+
+template <typename T>
+void simulateGpu(Parameters<T> parameters) {
+    scatter::gpu::MieScatter<T> scatterer(parameters);
+
+    // run the simulation
+    auto start = high_resolution_clock::now();
+    scatterer.scatter();
+    auto end = high_resolution_clock::now();
+    cout << "gpu elapsed time: " << (chrono::duration_cast<milliseconds >(end-start)).count() << endl;
+
+    // save simulation results
+    scatterer.saveResult("Gpu");
+}
 
 int main(int argc, char* argv[]) {
     // parse command line arguments
@@ -23,19 +55,11 @@ int main(int argc, char* argv[]) {
     Parameters<float> parameters("./" + filename);
     parameters.print();
 
-    // pass the simulation parameters to the MieScatter object for simulation
-    scatter::cpu::MieScatter<float> scatterer(parameters);
+    // run the simulation on cpu
+    simulateCpu<float>(parameters);
 
-    // run the simulation
-    auto start = high_resolution_clock::now();
-    scatterer.scatter();
-    auto end = high_resolution_clock::now();
-    cout << "cpu elapsed time: " << (chrono::duration_cast<milliseconds >(end-start)).count() << endl;
-
-    // save simulation results
-    scatterer.saveResult();
-
-
+    // run the simulation of gpu
+    simulateGpu<float>(parameters);
 
     return 0;
 }

@@ -7,6 +7,11 @@
 
 #include <math.h>
 #include "helper.cuh"
+#include "Bessel.cuh"
+
+#ifndef Nl
+#define Nl 30
+#endif
 
 #define el 0.5772156649015329
 
@@ -20,6 +25,25 @@ int factorial(int n) {
 }
 
 namespace redefined {
+
+    template<typename P>
+    __host__ __device__
+    int chankelva_sph(const thrust::complex<P> z, thrust::complex<P>* chv) {
+        P vm;
+        int returnVal;
+        thrust::complex<P> cjv  [Nl+2];
+        thrust::complex<P> cyv  [Nl+2];
+        thrust::complex<P> cjvp [Nl+2];
+        thrust::complex<P> cyvp [Nl+2];
+
+        returnVal = stimLab::cbessjyva_sph<P>(Nl, z, vm, cjv, cyv, cjvp, cyvp);
+
+        for (int i = 0; i <= Nl; i++) {
+            chv[i] = cjv[i] + thrust::complex<P> (0, 1) * cyv[i];
+        }
+
+        return returnVal;
+    }
 
     template <typename T>
     __host__ __device__ T legendre(const int n, const T& x) {
