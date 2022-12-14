@@ -167,7 +167,7 @@ namespace scatter {
 
                             c = sphere.center() - focus;
                             shiftedPhase = exp(thrust::complex<T>(0, k * kUnitVec.dot(c)));
-                            r = mesh.getPoint(j, i);
+                            r = mesh.getPoint(j, i) - sphere.center();
                             distance = r.mag();
 
                             cosTheta = r.getElement(0) / distance;
@@ -256,7 +256,7 @@ namespace scatter {
                 for (int s = 0; s < numSpheres; s++) {
                     c = spheres[s].center() - focus;
                     shiftedPhase = exp(thrust::complex<T>(0, k * kUnitVec.dot(c)));
-                    r = mesh[ix];
+                    r = mesh[ix] - spheres[s].center();
                     distance = r.mag();
 
                     cosTheta = r.getElement(0) / distance;

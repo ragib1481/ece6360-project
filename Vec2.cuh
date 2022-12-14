@@ -35,14 +35,14 @@ public:
     }
 
     __host__ __device__
-    Vec2& operator=(const T& val) {
+    Vec2& operator=(const T& val) const{
         vec[0] = val;
         vec[1] = val;
         return *this;
     }
 
     __host__ __device__
-    Vec2 operator+(const Vec2& r) {
+    Vec2 operator+(const Vec2& r) const{
         Vec2 v(0, 0);
         v.vec[0] = vec[0] + r.vec[0];
         v.vec[1] = vec[1] + r.vec[1];
@@ -50,7 +50,7 @@ public:
     }
 
     __host__ __device__
-    Vec2 operator+(const T& val) {
+    Vec2 operator+(const T& val) const{
         Vec2 v(0, 0);
         v.vec[0] = vec[0] + val;
         v.vec[1] = vec[1] + val;
@@ -58,7 +58,7 @@ public:
     }
 
     __host__ __device__
-    Vec2 operator-(const Vec2& r) {
+    Vec2 operator-(const Vec2& r) const{
         Vec2 v(0, 0);
         v.vec[0] = vec[0] - r.vec[0];
         v.vec[1] = vec[1] - r.vec[1];
@@ -66,7 +66,7 @@ public:
     }
 
     __host__ __device__
-    Vec2 operator-(const T& val) {
+    Vec2 operator-(const T& val) const{
         Vec2 v(0, 0);
         v.vec[0] = vec[0] - val;
         v.vec[1] = vec[1] - val;
@@ -74,7 +74,7 @@ public:
     }
 
     __host__ __device__
-    Vec2 operator/(const Vec2& r) {
+    Vec2 operator/(const Vec2& r) const{
         Vec2 v(0, 0);
         v.vec[0] = vec[0] / r.vec[0];
         v.vec[1] = vec[1] / r.vec[1];
@@ -82,7 +82,7 @@ public:
     }
 
     __host__ __device__
-    Vec2 operator/(const T& val) {
+    Vec2 operator/(const T& val) const{
         Vec2 v(0, 0);
         v.vec[0] = vec[0] / val;
         v.vec[1] = vec[1] / val;
@@ -90,7 +90,7 @@ public:
     }
 
     __host__ __device__
-    Vec2 operator*(const Vec2& r) {
+    Vec2 operator*(const Vec2& r) const{
         Vec2 v(0, 0);
         v.vec[0] = vec[0] * r.vec[0];
         v.vec[1] = vec[1] * r.vec[1];
@@ -98,7 +98,7 @@ public:
     }
 
     __host__ __device__
-    Vec2 operator*(const T& val) {
+    Vec2 operator*(const T& val) const{
         Vec2 v(0, 0);
         v.vec[0] = vec[0] * val;
         v.vec[1] = vec[1] * val;
@@ -117,7 +117,7 @@ public:
     }
 
     __host__ __device__
-    T getElement(unsigned short i) {
+    T getElement(unsigned short i) const{
         return vec[i];
     }
 
