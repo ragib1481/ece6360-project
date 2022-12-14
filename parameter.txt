@@ -2,7 +2,7 @@ xStart: -32.0
 xEnd: 32.0
 zStart: -32.0
 zEnd: 32.0
-sampling: 0.25 0.25
+sampling: 0.125 0.125
 numerical_aperture: 0.2
 wavelength: 3.1
 k_direction: 0 1
