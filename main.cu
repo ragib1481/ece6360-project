@@ -5,13 +5,12 @@
 #include <complex.h>
 #include <chrono>
 
+#ifndef Nl
+#define Nl 30
+#endif
 
 #include "Scatter.cuh"
 #include "helper.cuh"
-
-#ifndef Nl
-    #define Nl 30
-#endif
 
 using namespace std;
 using namespace std::chrono;
@@ -24,7 +23,7 @@ void simulateCpu(Parameters<T> parameters) {
     auto start = high_resolution_clock::now();
     scatterer.scatter();
     auto end = high_resolution_clock::now();
-    cout << "cpu elapsed time: " << (chrono::duration_cast<milliseconds >(end-start)).count() << endl;
+    cout << "cpu elapsed time: " << (chrono::duration_cast<milliseconds >(end-start)).count() << "ms" << endl;
 
     // save simulation results
     scatterer.saveResult("Cpu");
@@ -38,7 +37,7 @@ void simulateGpu(Parameters<T> parameters) {
     auto start = high_resolution_clock::now();
     scatterer.scatter();
     auto end = high_resolution_clock::now();
-    cout << "gpu elapsed time: " << (chrono::duration_cast<milliseconds >(end-start)).count() << endl;
+    cout << "gpu elapsed time: " << (chrono::duration_cast<milliseconds >(end-start)).count() << "ms" << endl;
 
     // save simulation results
     scatterer.saveResult("Gpu");

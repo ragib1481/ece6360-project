@@ -317,7 +317,7 @@ namespace scatter {
 
 
             // perform scattering simulation in parallel on gpu
-            void scatter() {
+            void scatter(bool verbose=false) {
                 /* copy the mesh grid to the gpu.
                  * copy the spheres to the gpu.
                  * declare the field data as the output from the kernel.
@@ -330,30 +330,32 @@ namespace scatter {
 
                 // copy mesh to the gpu and get a pointer
                 thrust::device_vector<Vec2<T>> meshVectorGpu = mesh.getGrid();
-                Vec2<T>* meshGpuPtr = thrust::raw_pointer_cast(meshVectorGpu.data());
+                Vec2<T> *meshGpuPtr = thrust::raw_pointer_cast(meshVectorGpu.data());
 
-                cudaDeviceSynchronize();
-                std::cout << "copying mesh to gpu" << std::endl;
-                error = cudaGetLastError();
-                if (error != cudaSuccess) {
-                    std::cout << cudaGetErrorString(error) << std::endl;
-                }
-                else {
-                    std::cout << "Success" << std::endl;
+                if (verbose){
+                    cudaDeviceSynchronize();
+                    std::cout << "copying mesh to gpu" << std::endl;
+                    error = cudaGetLastError();
+                    if (error != cudaSuccess) {
+                        std::cout << cudaGetErrorString(error) << std::endl;
+                    } else {
+                        std::cout << "Success" << std::endl;
+                    }
                 }
 
                 // copy mesh to the gpu and get a pointer
                 thrust::device_vector<Sphere<T>> spheresGpu = spheres;
                 Sphere<T>* spheresGpuPtr = thrust::raw_pointer_cast(spheresGpu.data());
 
-                cudaDeviceSynchronize();
-                std::cout << "copying spheres to gpu" << std::endl;
-                error = cudaGetLastError();
-                if (error != cudaSuccess) {
-                    std::cout << cudaGetErrorString(error) << std::endl;
-                }
-                else {
-                    std::cout << "Success" << std::endl;
+                if (verbose) {
+                    cudaDeviceSynchronize();
+                    std::cout << "copying spheres to gpu" << std::endl;
+                    error = cudaGetLastError();
+                    if (error != cudaSuccess) {
+                        std::cout << cudaGetErrorString(error) << std::endl;
+                    } else {
+                        std::cout << "Success" << std::endl;
+                    }
                 }
 
                 // declare device_vector to contain the calculated field
@@ -373,25 +375,28 @@ namespace scatter {
                 //               const unsigned int width, const unsigned int height, const T k, const Vec2<T>& focus,
                 //               Vec2<T>& kUnitVec, const T cosAlpha1, const T cosAlpha2, const int numSpheres) {
 
-                cudaDeviceSynchronize();
-                std::cout << "performing computation" << std::endl;
-                error = cudaGetLastError();
-                if (error != cudaSuccess) {
-                    std::cout << cudaGetErrorString(error) << std::endl;
-                }
-                else {
-                    std::cout << "Success" << std::endl;
+                if (verbose) {
+                    cudaDeviceSynchronize();
+                    std::cout << "performing computation" << std::endl;
+                    error = cudaGetLastError();
+                    if (error != cudaSuccess) {
+                        std::cout << cudaGetErrorString(error) << std::endl;
+                    } else {
+                        std::cout << "Success" << std::endl;
+                    }
                 }
 
                 // copy data back to the gpu
                 field = fieldGpu;
-                std::cout << "copying data back to host" << std::endl;
-                error = cudaGetLastError();
-                if (error != cudaSuccess) {
-                    std::cout << cudaGetErrorString(error) << std::endl;
-                }
-                else {
-                    std::cout << "Success" << std::endl;
+
+                if (verbose) {
+                    std::cout << "copying data back to host" << std::endl;
+                    error = cudaGetLastError();
+                    if (error != cudaSuccess) {
+                        std::cout << cudaGetErrorString(error) << std::endl;
+                    } else {
+                        std::cout << "Success" << std::endl;
+                    }
                 }
             }
 
