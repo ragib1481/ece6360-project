@@ -170,7 +170,7 @@ namespace scatter {
                             r = mesh.getPoint(j, i) - sphere.center();
                             distance = r.mag();
 
-                            cosTheta = r.getElement(0) / distance;
+                            cosTheta = kUnitVec.dot(r) / (r.mag() * kUnitVec.mag());
 
                             if (distance < sphere.radius()) {
                                 totalField += shiftedPhase * Ei<T>(sphere.getAl(), k, distance, cosTheta,
@@ -259,7 +259,7 @@ namespace scatter {
                     r = mesh[ix] - spheres[s].center();
                     distance = r.mag();
 
-                    cosTheta = r.getElement(0) / distance;
+                    cosTheta = kUnitVec.dot(r) / (r.mag() * kUnitVec.mag());
 
                     if (distance < spheres[s].radius()) {
                         totalField += shiftedPhase * Ei<T>(spheres[s].getAl(), k, distance, cosTheta,

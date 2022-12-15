@@ -9,3 +9,4 @@ k_direction: 0 1
 focus: 0 0
 spheres:
 0 0 3.0 1.4 0.1
+16 -16 3.0 1.4 0.1

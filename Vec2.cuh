@@ -112,7 +112,7 @@ public:
     }
 
     __host__ __device__
-    T mag() {
+    T mag() const{
         return sqrt(vec[0] * vec[0] + vec[1] * vec[1]);
     }
 
